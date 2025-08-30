@@ -57,9 +57,7 @@ mainFrame.BackgroundColor3 = Color3.fromRGB(28, 28, 32)
 mainFrame.BorderSizePixel = 0
 mainFrame.AnchorPoint = Vector2.new(0.5, 0.5)
 mainFrame.Position = UDim2.new(0.5, 0, -0.5, 0)
-local UserInputService = game:GetService("UserInputService")
-local isMobile = UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled
-mainFrame.Size = isMobile and UDim2.new(0, 350, 0, 300) or UDim2.new(0, 550, 0, 380)
+mainFrame.Size = UDim2.new(0, 550, 0, 380)
 mainFrame.Visible = false
 
 local uiCorner = Instance.new("UICorner")
@@ -125,7 +123,7 @@ tabContainer.Parent = mainFrame
 tabContainer.BackgroundColor3 = Color3.fromRGB(28, 28, 32)
 tabContainer.BorderSizePixel = 0
 tabContainer.Position = UDim2.new(0, 0, 0, 35)
-tabContainer.Size = isMobile and UDim2.new(0, 90, 1, -35) or UDim2.new(0, 130, 1, -35)
+tabContainer.Size = UDim2.new(0, 130, 1, -35)
 local tabLayout = Instance.new("UIListLayout", tabContainer)
 tabLayout.FillDirection = Enum.FillDirection.Vertical
 tabLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
@@ -138,8 +136,8 @@ contentContainer.Name = "ContentContainer"
 contentContainer.Parent = mainFrame
 contentContainer.BackgroundTransparency = 1
 contentContainer.BorderSizePixel = 0
-contentContainer.Position = isMobile and UDim2.new(0, 90, 0, 35) or UDim2.new(0, 130, 0, 35)
-contentContainer.Size = isMobile and UDim2.new(1, -90, 1, -35) or UDim2.new(1, -130, 1, -35)
+contentContainer.Position = UDim2.new(0, 130, 0, 35)
+contentContainer.Size = UDim2.new(1, -130, 1, -35)
 
 local function createTab(name, order)
 	local tabButton = Instance.new("TextButton", tabContainer)
@@ -222,9 +220,9 @@ local function createButton(parent, label, callback)
 	end)
 	button.MouseButton1Click:Connect(function()
 		clickSound:Play()
-		TweenService:Create(button, TweenInfo.new(0.1), {Size = isMobile and UDim2.new(0.93, 0, 0, 30) or UDim2.new(0.88, 0, 0, 33)}):Play()
+		TweenService:Create(button, TweenInfo.new(0.1), {Size = UDim2.new(0.88, 0, 0, 33)}):Play()
 		task.wait(0.1)
-		TweenService:Create(button, TweenInfo.new(0.1), {Size = isMobile and UDim2.new(0.95, 0, 0, 32) or UDim2.new(0.9, 0, 0, 35)}):Play()
+		TweenService:Create(button, TweenInfo.new(0.1), {Size = UDim2.new(0.9, 0, 0, 35)}):Play()
 		if callback then callback() end
 	end)
 end
@@ -263,7 +261,7 @@ local function createToggle(parent, label, callback)
 	knob.BackgroundColor3 = Color3.fromRGB(220, 80, 80)
 	knob.AnchorPoint = Vector2.new(0, 0.5)
 	knob.Position = UDim2.new(0, 3, 0.5, 0)
-	knob.Size = isMobile and UDim2.new(0, 14, 0, 14) or UDim2.new(0, 16, 0, 16)
+	knob.Size = UDim2.new(0, 16, 0, 16)
 	local knobCorner = Instance.new("UICorner", knob)
 	knobCorner.CornerRadius = UDim.new(1, 0)
 
@@ -273,7 +271,7 @@ local function createToggle(parent, label, callback)
 		toggled = not toggled
 		local tweenInfo = TweenInfo.new(0.2, Enum.EasingStyle.Quint, Enum.EasingDirection.Out)
 		if toggled then
-			TweenService:Create(knob, tweenInfo, {Position = isMobile and UDim2.new(1, -15, 0.5, 0) or UDim2.new(1, -19, 0.5, 0)}):Play()
+			TweenService:Create(knob, tweenInfo, {Position = UDim2.new(1, -19, 0.5, 0)}):Play()
 			TweenService:Create(knob, tweenInfo, {BackgroundColor3 = Color3.fromRGB(80, 220, 80)}):Play()
 		else
 			TweenService:Create(knob, tweenInfo, {Position = UDim2.new(0, 3, 0.5, 0)}):Play()
