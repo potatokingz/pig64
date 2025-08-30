@@ -1,12 +1,13 @@
 --[[
-    potato 64 Script (Roblox Studio Compatible Version)
-    GUI Concept by User, Integrated by Gemini
+    potato 64 Script (Executor Compatible Version)
+    GUI Concept by User, Integrated and Updated by Gemini
     Features:
+    - All executor-level functions have been enabled.
+    - Includes working ESP, Noclip, Auto-Farming, and more.
     - Integrated Image Logo & Custom Title
     - Modern aesthetic with smooth animations
     - Interactive on-hover effects and sound effects
     - Reorganized into a clean, tabbed interface
-    - Executor-only functions have been commented out to prevent errors in Studio.
 ]]
 
 -- Services
@@ -17,10 +18,9 @@ local RunService = game:GetService("RunService")
 -- Main Script Variables
 local player = game.Players.LocalPlayer
 local noclipEnabled = false
+local flyEnabled = false
 local ownerUserId = 5450713868 -- You can change this to your own UserId to see the welcome message
 
--- Executor-specific features are disabled for Studio compatibility
---[[
 -- Notifications & Sound
 local NotificationHolder = loadstring(game:HttpGet("https://raw.githubusercontent.com/BocusLuke/UI/main/STX/Module.Lua"))()
 local Notification = loadstring(game:HttpGet("https://raw.githubusercontent.com/BocusLuke/UI/main/STX/Client.Lua"))()
@@ -29,14 +29,10 @@ local Notification = loadstring(game:HttpGet("https://raw.githubusercontent.com/
 Notification:Notify({Title = "potato 64", Description = "Loading Script... Please wait."}, {OutlineColor = Color3.fromRGB(255, 255, 255),Time = 2, Type = "default"})
 task.wait(2)
 Notification:Notify({Title = "potato 64 Script", Description = "Successfully Script is loaded! Enjoy"}, {OutlineColor = Color3.fromRGB(255, 255, 255),Time = 3, Type = "default"})
-]]
 
-print("potato 64 Script: Loading...")
-task.wait(1) -- Simulate a small loading delay
-print("potato 64 Script: Successfully loaded in Roblox Studio!")
 if player.UserId == ownerUserId then
 	print("Welcome Owner: " .. player.Name)
-	-- Notification:Notify({Title = "Welcome Owner", Description = "Welcome " .. player.Name}, {OutlineColor = Color3.fromRGB(255, 255, 0),Time = 5, Type = "default"})
+	Notification:Notify({Title = "Welcome Owner", Description = "Welcome " .. player.Name}, {OutlineColor = Color3.fromRGB(255, 255, 0),Time = 5, Type = "default"})
 end
 
 -- State variables for toggles
@@ -47,30 +43,19 @@ local brightLoop = nil
 
 -- Core Cheat Functions
 function esp()
-	print("ESP Function Called (Disabled in Studio): This requires an executor to run.")
-    --[[ Executor-Only Code:
-    getgenv().enabled = true --Toggle on/off
-    getgenv().filluseteamcolor = false --Toggle fill color using player team color on/off
-    getgenv().outlineuseteamcolor = false --Toggle outline color using player team color on/off
-    getgenv().fillcolor = Color3.new(255, 0, 0) --Change fill color, no need to edit if using team color
-    getgenv().outlinecolor = Color3.new(255, 255, 255) --Change outline color, no need to edit if using team color
-    getgenv().filltrans = 0.7 --Change fill transparency
-    getgenv().outlinetrans = 0 --Change outline transparency
-    loadstring(game:HttpGet("https://gist.githubusercontent.com/Ginxys/a2d26247ddcd1670ad9be672dfd94914/raw/b4f5acf1667f24916a6af7440e0444c0a15f5051/customesp"))()
-    ]]
+	getgenv().enabled = true --Toggle on/off
+	getgenv().filluseteamcolor = false --Toggle fill color using player team color on/off
+	getgenv().outlineuseteamcolor = false --Toggle outline color using player team color on/off
+	getgenv().fillcolor = Color3.new(255, 0, 0) --Change fill color, no need to edit if using team color
+	getgenv().outlinecolor = Color3.new(255, 255, 255) --Change outline color, no need to edit if using team color
+	getgenv().filltrans = 0.7 --Change fill transparency
+	getgenv().outlinetrans = 0 --Change outline transparency
+	loadstring(game:HttpGet("https://gist.githubusercontent.com/Ginxys/a2d26247ddcd1670ad9be672dfd94914/raw/b4f5acf1667f24916a6af7440e0444c0a15f5051/customesp"))()
 end
 
 function toggleNoclip(state)
 	noclipEnabled = state or not noclipEnabled
 	print("Noclip Toggled: " .. tostring(noclipEnabled))
-	local char = player.Character
-	if char then
-		for _, part in pairs(char:GetDescendants()) do
-			if part:IsA("BasePart") then
-				part.CanCollide = not noclipEnabled
-			end
-		end
-	end
 end
 
 RunService.Stepped:Connect(function()
@@ -78,6 +63,66 @@ RunService.Stepped:Connect(function()
 		for _, part in pairs(player.Character:GetDescendants()) do
 			if part:IsA("BasePart") then
 				part.CanCollide = false
+			end
+		end
+	end
+end)
+
+function toggleFly()
+	flyEnabled = not flyEnabled
+	print("Fly Toggled: " .. tostring(flyEnabled))
+	local char = player.Character
+	if not char or not char:FindFirstChild("HumanoidRootPart") then return end
+
+	if flyEnabled then
+		local rootPart = char.HumanoidRootPart
+		if not rootPart:FindFirstChild("FlyVelocity") then
+			local bv = Instance.new("BodyVelocity", rootPart)
+			bv.Name = "FlyVelocity"
+			bv.MaxForce = Vector3.new(9e9, 9e9, 9e9)
+			bv.Velocity = Vector3.new(0, 0, 0)
+
+			local bg = Instance.new("BodyGyro", rootPart)
+			bg.Name = "FlyGyro"
+			bg.MaxTorque = Vector3.new(9e9, 9e9, 9e9)
+			bg.CFrame = rootPart.CFrame
+		end
+	else
+		if char.HumanoidRootPart:FindFirstChild("FlyVelocity") then char.HumanoidRootPart.FlyVelocity:Destroy() end
+		if char.HumanoidRootPart:FindFirstChild("FlyGyro") then char.HumanoidRootPart.FlyGyro:Destroy() end
+	end
+
+	char.Humanoid.PlatformStand = flyEnabled
+end
+
+RunService.RenderStepped:Connect(function()
+	if flyEnabled and player.Character then
+		local rootPart = player.Character:FindFirstChild("HumanoidRootPart")
+		if rootPart and rootPart:FindFirstChild("FlyVelocity") then
+			local velocity = Vector3.new(0,0,0)
+			local speed = 50 -- Adjust fly speed here
+			if UserInputService:IsKeyDown(Enum.KeyCode.W) then
+				velocity = velocity + (workspace.CurrentCamera.CFrame.LookVector * speed)
+			end
+			if UserInputService:IsKeyDown(Enum.KeyCode.S) then
+				velocity = velocity - (workspace.CurrentCamera.CFrame.LookVector * speed)
+			end
+			if UserInputService:IsKeyDown(Enum.KeyCode.D) then
+				velocity = velocity + (workspace.CurrentCamera.CFrame.RightVector * speed)
+			end
+			if UserInputService:IsKeyDown(Enum.KeyCode.A) then
+				velocity = velocity - (workspace.CurrentCamera.CFrame.RightVector * speed)
+			end
+			if UserInputService:IsKeyDown(Enum.KeyCode.Space) then
+				velocity = velocity + Vector3.new(0, speed, 0)
+			end
+			if UserInputService:IsKeyDown(Enum.KeyCode.LeftControl) then
+				velocity = velocity - Vector3.new(0, speed, 0)
+			end
+			rootPart.FlyVelocity.Velocity = velocity
+
+			if rootPart:FindFirstChild("FlyGyro") then
+				rootPart.FlyGyro.CFrame = workspace.CurrentCamera.CFrame
 			end
 		end
 	end
@@ -98,8 +143,7 @@ mainFrame.BackgroundColor3 = Color3.fromRGB(28, 28, 32)
 mainFrame.BorderSizePixel = 0
 mainFrame.AnchorPoint = Vector2.new(0.5, 0.5)
 mainFrame.Position = UDim2.new(0.5, 0, -0.5, 0)
-mainFrame.Size = UDim2.new(0, 550, 0, 380) -- Increased height for more content
-mainFrame.Visible = false
+mainFrame.Size = UDim2.new(0, 550, 0, 380)
 
 local uiCorner = Instance.new("UICorner")
 uiCorner.CornerRadius = UDim.new(0, 12)
@@ -124,7 +168,7 @@ titleGradient.Rotation = 90
 local logo = Instance.new("ImageLabel")
 logo.Name = "Logo"
 logo.Parent = titleBar
-logo.Image = "rbxassetid://99543355360177" -- Changed Asset ID
+logo.Image = "rbxassetid://99543355360177" 
 logo.BackgroundTransparency = 1
 logo.Position = UDim2.new(0, 10, 0.5, 0)
 logo.AnchorPoint = Vector2.new(0, 0.5)
@@ -423,18 +467,16 @@ end
 local mainTab = createTab("Main", 1)
 local norTab = createTab("NOR Level", 2)
 local creditsTab = createTab("Credits", 3)
-local updatesTab = createTab("Updates", 4) -- New updates tab
+local updatesTab = createTab("Updates", 4)
 
 -- Add content to Main tab
 createButton(mainTab, "Anti Report", function()
 	if player.Character and player.Character.Humanoid then
 		player.Character.Humanoid.DisplayDistanceType = Enum.HumanoidDisplayDistanceType.None
 	end
-    --[[ Executor-Only Code:
-    setfflag("AbuseReportScreenshot", "False")
-    setfflag("AbuseReportScreenshotPercentage", "0")
-    ]]
-	print("Anti-Report: Nametag hidden. Screenshot prevention is executor-only.")
+	setfflag("AbuseReportScreenshot", "False")
+	setfflag("AbuseReportScreenshotPercentage", "0")
+	print("Anti-Report Activated.")
 end)
 createButton(mainTab, "ESP (PLAYERS)", esp)
 createToggle(mainTab, "Auto Collect", function(state)
@@ -446,10 +488,8 @@ createToggle(mainTab, "Auto Collect", function(state)
 				if game:GetService("Workspace"):FindFirstChild("Collectables") and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
 					for _, v in pairs(game:GetService("Workspace").Collectables:GetDescendants()) do
 						if v.Name == "Hitbox" and autoCollecting then
-                            --[[ Executor-Only Code:
-                            firetouchinterest(player.Character.HumanoidRootPart, v, 0)
-                            firetouchinterest(player.Character.HumanoidRootPart, v, 1)
-                            ]]
+							firetouchinterest(player.Character.HumanoidRootPart, v, 0)
+							firetouchinterest(player.Character.HumanoidRootPart, v, 1)
 						end
 					end
 				end
@@ -461,7 +501,7 @@ end)
 createButton(mainTab, "Toggle NoClip", function()
 	toggleNoclip()
 end)
-createButton(mainTab, "Fly WORKS", function() print("Fly Script (Disabled in Studio): This requires an executor.") end)
+createButton(mainTab, "Toggle Fly", toggleFly)
 createSlider(mainTab, "FOV", 70, 120, 70, function(value)
 	if workspace.CurrentCamera then workspace.CurrentCamera.FieldOfView = value end
 end)
@@ -499,7 +539,7 @@ createToggle(norTab, "Auto Keys/Open", function(state)
 					for _, g in pairs(workspace:GetDescendants()) do
 						if g:IsA("ProximityPrompt") and autoKeys then
 							g.HoldDuration = 0
-							-- fireproximityprompt(g) -- Executor-Only Function
+							fireproximityprompt(g)
 						end
 					end
 				end)
@@ -515,10 +555,9 @@ createToggle(norTab, "Auto Dance OP", function(state)
 		coroutine.wrap(function()
 			while autoDance do
 				pcall(function()
-					-- NOTE: This is unlikely to work in a real game without the correct client context.
 					local remote = game:GetService("ReplicatedStorage"):FindFirstChild("RegisterDance", true)
 					if remote then
-						-- remote:InvokeServer(1, "Dance6")
+						remote:InvokeServer(1, "Dance6")
 					end
 				end)
 				task.wait(0.2)
