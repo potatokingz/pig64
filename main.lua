@@ -7,7 +7,7 @@ local RunService = game:GetService("RunService")
 local player = game.Players.LocalPlayer
 local noclipEnabled = false
 local flyEnabled = false
-local ownerUserId = 5450713868
+local ownerUserId = 1
 
 local NotificationHolder = loadstring(game:HttpGet("https://raw.githubusercontent.com/BocusLuke/UI/main/STX/Module.Lua"))()
 local Notification = loadstring(game:HttpGet("https://raw.githubusercontent.com/BocusLuke/UI/main/STX/Client.Lua"))()
