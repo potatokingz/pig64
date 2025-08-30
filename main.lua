@@ -1,5 +1,12 @@
 --[[
-    made by potatoking, please donate here: 
+    potato 64 Script (Roblox Studio Compatible Version)
+    GUI Concept by User, Integrated by Gemini
+    Features:
+    - Integrated Image Logo & Custom Title
+    - Modern aesthetic with smooth animations
+    - Interactive on-hover effects and sound effects
+    - Reorganized into a clean, tabbed interface
+    - Executor-only functions have been commented out to prevent errors in Studio.
 ]]
 
 -- Services
@@ -10,13 +17,26 @@ local RunService = game:GetService("RunService")
 -- Main Script Variables
 local player = game.Players.LocalPlayer
 local noclipEnabled = false
-local ownerUserId = 9271047371
+local ownerUserId = 5450713868 -- You can change this to your own UserId to see the welcome message
+
+-- Executor-specific features are disabled for Studio compatibility
+--[[
+-- Notifications & Sound
+local NotificationHolder = loadstring(game:HttpGet("https://raw.githubusercontent.com/BocusLuke/UI/main/STX/Module.Lua"))()
+local Notification = loadstring(game:HttpGet("https://raw.githubusercontent.com/BocusLuke/UI/main/STX/Client.Lua"))()
+
+-- Initial Notifications
+Notification:Notify({Title = "potato 64", Description = "Loading Script... Please wait."}, {OutlineColor = Color3.fromRGB(255, 255, 255),Time = 2, Type = "default"})
+task.wait(2)
+Notification:Notify({Title = "potato 64 Script", Description = "Successfully Script is loaded! Enjoy"}, {OutlineColor = Color3.fromRGB(255, 255, 255),Time = 3, Type = "default"})
+]]
 
 print("potato 64 Script: Loading...")
 task.wait(1) -- Simulate a small loading delay
 print("potato 64 Script: Successfully loaded in Roblox Studio!")
 if player.UserId == ownerUserId then
 	print("Welcome Owner: " .. player.Name)
+	-- Notification:Notify({Title = "Welcome Owner", Description = "Welcome " .. player.Name}, {OutlineColor = Color3.fromRGB(255, 255, 0),Time = 5, Type = "default"})
 end
 
 -- State variables for toggles
@@ -28,6 +48,16 @@ local brightLoop = nil
 -- Core Cheat Functions
 function esp()
 	print("ESP Function Called (Disabled in Studio): This requires an executor to run.")
+    --[[ Executor-Only Code:
+    getgenv().enabled = true --Toggle on/off
+    getgenv().filluseteamcolor = false --Toggle fill color using player team color on/off
+    getgenv().outlineuseteamcolor = false --Toggle outline color using player team color on/off
+    getgenv().fillcolor = Color3.new(255, 0, 0) --Change fill color, no need to edit if using team color
+    getgenv().outlinecolor = Color3.new(255, 255, 255) --Change outline color, no need to edit if using team color
+    getgenv().filltrans = 0.7 --Change fill transparency
+    getgenv().outlinetrans = 0 --Change outline transparency
+    loadstring(game:HttpGet("https://gist.githubusercontent.com/Ginxys/a2d26247ddcd1670ad9be672dfd94914/raw/b4f5acf1667f24916a6af7440e0444c0a15f5051/customesp"))()
+    ]]
 end
 
 function toggleNoclip(state)
