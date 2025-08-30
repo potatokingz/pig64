@@ -8,6 +8,11 @@ local player = game.Players.LocalPlayer
 local noclipEnabled = false
 local ownerUserId = 5450713868 -- You can change this to your own UserId to see the welcome message
 
+--[[ highlight-start ]]
+-- Check for mobile device
+local isMobile = UserInputService.TouchEnabled
+--[[ highlight-end ]]
+
 print("potato 64 Script: Loading...")
 task.wait(1) -- Simulate a small loading delay
 print("potato 64 Script: Successfully loaded in Roblox Studio!")
@@ -75,13 +80,14 @@ mainFrame.BackgroundColor3 = Color3.fromRGB(28, 28, 32)
 mainFrame.BorderSizePixel = 0
 mainFrame.AnchorPoint = Vector2.new(0.5, 0.5)
 mainFrame.Position = UDim2.new(0.5, 0, -0.5, 0)
-mainFrame.Size = UDim2.new(0, 550, 0, 380) -- Increased height for more content
-mainFrame.Visible = false
-
--- Mobile adjustments
-if UserInputService.TouchEnabled then
-	mainFrame.Size = UDim2.new(0, 400, 0, 300) -- Smaller size for mobile
+--[[ highlight-start ]]
+if isMobile then
+	mainFrame.Size = UDim2.new(0, 320, 0, 280) -- Smaller size for mobile
+else
+	mainFrame.Size = UDim2.new(0, 550, 0, 380) -- Original size for desktop
 end
+--[[ highlight-end ]]
+mainFrame.Visible = false
 
 local uiCorner = Instance.new("UICorner")
 uiCorner.CornerRadius = UDim.new(0, 12)
@@ -134,18 +140,6 @@ closeButton.Size = UDim2.new(0, 20, 0, 20)
 closeButton.Image = "rbxassetid://1351660348"
 closeButton.ImageColor3 = Color3.fromRGB(200, 200, 200)
 
-local minimizeButton = Instance.new("ImageButton")
-minimizeButton.Name = "MinimizeButton"
-minimizeButton.Parent = titleBar
-minimizeButton.BackgroundTransparency = 1
-minimizeButton.AnchorPoint = Vector2.new(1, 0.5)
-minimizeButton.Position = UDim2.new(1, -40, 0.5, 0)
-minimizeButton.Size = UDim2.new(0, 20, 0, 20)
-minimizeButton.Image = "http://www.roblox.com/asset/?id=1351660348"
-minimizeButton.ImageColor3 = Color3.fromRGB(200, 200, 200)
-minimizeButton.ImageRectOffset = Vector2.new(4, 84)
-minimizeButton.ImageRectSize = Vector2.new(24, 24)
-
 local clickSound = Instance.new("Sound", screenGui)
 clickSound.SoundId = "rbxassetid://913363290"
 local hoverSound = Instance.new("Sound", screenGui)
@@ -158,7 +152,13 @@ tabContainer.Parent = mainFrame
 tabContainer.BackgroundColor3 = Color3.fromRGB(28, 28, 32)
 tabContainer.BorderSizePixel = 0
 tabContainer.Position = UDim2.new(0, 0, 0, 35)
-tabContainer.Size = UDim2.new(0, 130, 1, -35)
+--[[ highlight-start ]]
+if isMobile then
+	tabContainer.Size = UDim2.new(0, 100, 1, -35) -- Adjusted tab container for mobile
+else
+	tabContainer.Size = UDim2.new(0, 130, 1, -35)
+end
+--[[ highlight-end ]]
 local tabLayout = Instance.new("UIListLayout", tabContainer)
 tabLayout.FillDirection = Enum.FillDirection.Vertical
 tabLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
@@ -171,31 +171,15 @@ contentContainer.Name = "ContentContainer"
 contentContainer.Parent = mainFrame
 contentContainer.BackgroundTransparency = 1
 contentContainer.BorderSizePixel = 0
-contentContainer.Position = UDim2.new(0, 130, 0, 35)
-contentContainer.Size = UDim2.new(1, -130, 1, -35)
-
--- Minimized Box
-local minimizedBox = Instance.new("ImageButton")
-minimizedBox.Name = "MinimizedBox"
-minimizedBox.Parent = screenGui
-minimizedBox.Image = "rbxassetid://99543355360177"
-minimizedBox.BackgroundTransparency = 1
-minimizedBox.AnchorPoint = Vector2.new(0.5, 0.5)
-minimizedBox.Position = UDim2.new(0.5, 0, 0.5, 0)
-minimizedBox.Size = UDim2.new(0, 60, 0, 60)
-minimizedBox.Visible = false
-
--- Close button for the minimized box
-local minimizedCloseButton = Instance.new("ImageButton")
-minimizedCloseButton.Name = "MinimizedCloseButton"
-minimizedCloseButton.Parent = minimizedBox
-minimizedCloseButton.BackgroundTransparency = 1
-minimizedCloseButton.Size = UDim2.new(0, 20, 0, 20)
-minimizedCloseButton.AnchorPoint = Vector2.new(1, 0)
-minimizedCloseButton.Position = UDim2.new(1, 5, 0, -5)
-minimizedCloseButton.Image = "rbxassetid://1351660348"
-minimizedCloseButton.ImageColor3 = Color3.fromRGB(220, 220, 220)
-minimizedCloseButton.ZIndex = 2
+--[[ highlight-start ]]
+if isMobile then
+	contentContainer.Position = UDim2.new(0, 100, 0, 35)
+	contentContainer.Size = UDim2.new(1, -100, 1, -35)
+else
+	contentContainer.Position = UDim2.new(0, 130, 0, 35)
+	contentContainer.Size = UDim2.new(1, -130, 1, -35)
+end
+--[[ highlight-end ]]
 
 -- UI Creation Functions
 local function createTab(name, order)
@@ -207,7 +191,13 @@ local function createTab(name, order)
 	tabButton.Font = Enum.Font.GothamSemibold
 	tabButton.Text = name
 	tabButton.TextColor3 = Color3.fromRGB(200, 200, 200)
-	tabButton.TextSize = 16
+	--[[ highlight-start ]]
+	if isMobile then
+		tabButton.TextSize = 14
+	else
+		tabButton.TextSize = 16
+	end
+	--[[ highlight-end ]]
 	local tabCorner = Instance.new("UICorner", tabButton)
 	tabCorner.CornerRadius = UDim.new(0, 6)
 	local tabStroke = Instance.new("UIStroke", tabButton)
@@ -557,7 +547,6 @@ createLabel(updatesTab, "Fly GUI is getting better.")
 -- GUI Management
 local function openGui()
 	mainFrame.Visible = true
-	minimizedBox.Visible = false
 	TweenService:Create(mainFrame, TweenInfo.new(0.6, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {Position = UDim2.new(0.5, 0, 0.5, 0)}):Play()
 end
 
@@ -568,18 +557,9 @@ local function closeGui()
 	screenGui:Destroy()
 end
 
-local function minimizeGui()
-	mainFrame.Visible = false
-	minimizedBox.Position = UDim2.new(0.5, 0, 0.5, 0) -- Reset position to center
-	minimizedBox.Visible = true
-end
-
 closeButton.MouseButton1Click:Connect(closeGui)
-minimizeButton.MouseButton1Click:Connect(minimizeGui)
-minimizedBox.MouseButton1Click:Connect(openGui)
-minimizedCloseButton.MouseButton1Click:Connect(closeGui) -- Connect the new close button
 
--- Draggable functionality for the main frame title bar
+-- Draggable functionality
 local dragging, dragStart, startPos
 titleBar.InputBegan:Connect(function(input)
 	if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
@@ -599,32 +579,6 @@ UserInputService.InputChanged:Connect(function(input)
 	if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
 		local delta = input.Position - dragStart
 		mainFrame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
-	end
-end)
-
--- Draggable functionality for the minimized box
-local minimizedDragging, minimizedDragStart, minimizedStartPos
-minimizedBox.InputBegan:Connect(function(input)
-	if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-		if minimizedCloseButton:IsA("GuiButton") and input.Position.X > minimizedCloseButton.AbsolutePosition.X and input.Position.Y < minimizedCloseButton.AbsolutePosition.Y + minimizedCloseButton.AbsoluteSize.Y then
-			return
-		end
-		minimizedDragging = true
-		minimizedDragStart = input.Position
-		minimizedStartPos = minimizedBox.Position
-		local conn
-		conn = input.Changed:Connect(function()
-			if input.UserInputState == Enum.UserInputState.End then
-				minimizedDragging = false
-				conn:Disconnect()
-			end
-		end)
-	end
-end)
-UserInputService.InputChanged:Connect(function(input)
-	if minimizedDragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
-		local delta = input.Position - minimizedDragStart
-		minimizedBox.Position = UDim2.new(minimizedStartPos.X.Scale, minimizedStartPos.X.Offset + delta.X, minimizedStartPos.Y.Scale, minimizedStartPos.Y.Offset + delta.Y)
 	end
 end)
 
