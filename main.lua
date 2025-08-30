@@ -25,7 +25,7 @@ local brightLoop = nil
 -- Core Cheat Functions
 function esp()
 	print("ESP Function Called (Disabled in Studio): This requires an executor to run.")
-	--[[ Executor-Only Code:
+    --[[ Executor-Only Code:
     getgenv().enabled = true --Toggle on/off
     getgenv().filluseteamcolor = false --Toggle fill color using player team color on/off
     getgenv().outlineuseteamcolor = false --Toggle outline color using player team color on/off
@@ -141,9 +141,9 @@ minimizeButton.BackgroundTransparency = 1
 minimizeButton.AnchorPoint = Vector2.new(1, 0.5)
 minimizeButton.Position = UDim2.new(1, -40, 0.5, 0)
 minimizeButton.Size = UDim2.new(0, 20, 0, 20)
-minimizeButton.Image = "http://www.roblox.com/asset/?id=1351660348" -- Placeholder, replace with a minimize icon if you have one
+minimizeButton.Image = "http://www.roblox.com/asset/?id=1351660348"
 minimizeButton.ImageColor3 = Color3.fromRGB(200, 200, 200)
-minimizeButton.ImageRectOffset = Vector2.new(4, 84) -- Using a different part of the spritesheet for a "minimize" look
+minimizeButton.ImageRectOffset = Vector2.new(4, 84)
 minimizeButton.ImageRectSize = Vector2.new(24, 24)
 
 local clickSound = Instance.new("Sound", screenGui)
@@ -192,10 +192,10 @@ minimizedCloseButton.Parent = minimizedBox
 minimizedCloseButton.BackgroundTransparency = 1
 minimizedCloseButton.Size = UDim2.new(0, 20, 0, 20)
 minimizedCloseButton.AnchorPoint = Vector2.new(1, 0)
-minimizedCloseButton.Position = UDim2.new(1, 5, 0, -5) -- Position at top-right corner with a small offset
+minimizedCloseButton.Position = UDim2.new(1, 5, 0, -5)
 minimizedCloseButton.Image = "rbxassetid://1351660348"
 minimizedCloseButton.ImageColor3 = Color3.fromRGB(220, 220, 220)
-minimizedCloseButton.ZIndex = 2 -- Ensure it's on top of the main minimized box image
+minimizedCloseButton.ZIndex = 2
 
 -- UI Creation Functions
 local function createTab(name, order)
@@ -447,7 +447,7 @@ createButton(mainTab, "Anti Report", function()
 	if player.Character and player.Character.Humanoid then
 		player.Character.Humanoid.DisplayDistanceType = Enum.HumanoidDisplayDistanceType.None
 	end
-	--[[ Executor-Only Code:
+    --[[ Executor-Only Code:
     setfflag("AbuseReportScreenshot", "False")
     setfflag("AbuseReportScreenshotPercentage", "0")
     ]]
@@ -463,7 +463,7 @@ createToggle(mainTab, "Auto Collect", function(state)
 				if game:GetService("Workspace"):FindFirstChild("Collectables") and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
 					for _, v in pairs(game:GetService("Workspace").Collectables:GetDescendants()) do
 						if v.Name == "Hitbox" and autoCollecting then
-							--[[ Executor-Only Code:
+                            --[[ Executor-Only Code:
                             firetouchinterest(player.Character.HumanoidRootPart, v, 0)
                             firetouchinterest(player.Character.HumanoidRootPart, v, 1)
                             ]]
@@ -605,9 +605,8 @@ end)
 -- Draggable functionality for the minimized box
 local minimizedDragging, minimizedDragStart, minimizedStartPos
 minimizedBox.InputBegan:Connect(function(input)
-	-- Prevent dragging if the close button is clicked
 	if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-		if input.Position.X > minimizedCloseButton.AbsolutePosition.X and input.Position.Y < minimizedCloseButton.AbsolutePosition.Y + minimizedCloseButton.AbsoluteSize.Y then
+		if minimizedCloseButton:IsA("GuiButton") and input.Position.X > minimizedCloseButton.AbsolutePosition.X and input.Position.Y < minimizedCloseButton.AbsolutePosition.Y + minimizedCloseButton.AbsoluteSize.Y then
 			return
 		end
 		minimizedDragging = true
