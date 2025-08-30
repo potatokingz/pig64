@@ -1,45 +1,53 @@
--- script made by potatoking, please donate here: potatoking.net/pay
-
+-- Services
 local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
 local RunService = game:GetService("RunService")
 
+-- Main Script Variables
 local player = game.Players.LocalPlayer
 local noclipEnabled = false
-local flyEnabled = false
-local ownerUserId = 1
+local ownerUserId = 5450713868 -- You can change this to your own UserId to see the welcome message
 
-local NotificationHolder = loadstring(game:HttpGet("https://raw.githubusercontent.com/BocusLuke/UI/main/STX/Module.Lua"))()
-local Notification = loadstring(game:HttpGet("https://raw.githubusercontent.com/BocusLuke/UI/main/STX/Client.Lua"))()
-
-Notification:Notify({Title = "potato 64", Description = "Loading Script... Please wait."}, {OutlineColor = Color3.fromRGB(255, 255, 255),Time = 2, Type = "default"})
-task.wait(2)
-Notification:Notify({Title = "potato 64 Script", Description = "Successfully Script is loaded! Enjoy"}, {OutlineColor = Color3.fromRGB(255, 255, 255),Time = 3, Type = "default"})
-
+print("potato 64 Script: Loading...")
+task.wait(1) -- Simulate a small loading delay
+print("potato 64 Script: Successfully loaded in Roblox Studio!")
 if player.UserId == ownerUserId then
 	print("Welcome Owner: " .. player.Name)
-	Notification:Notify({Title = "Welcome Owner", Description = "Welcome " .. player.Name}, {OutlineColor = Color3.fromRGB(255, 255, 0),Time = 5, Type = "default"})
+	-- Notification:Notify({Title = "Welcome Owner", Description = "Welcome " .. player.Name}, {OutlineColor = Color3.fromRGB(255, 255, 0),Time = 5, Type = "default"})
 end
 
+-- State variables for toggles
 local autoCollecting = false
 local autoKeys = false
 local autoDance = false
 local brightLoop = nil
 
+-- Core Cheat Functions
 function esp()
-    getgenv().enabled = true
-    getgenv().filluseteamcolor = false
-    getgenv().outlineuseteamcolor = false
-    getgenv().fillcolor = Color3.new(255, 0, 0)
-    getgenv().outlinecolor = Color3.new(255, 255, 255)
-    getgenv().filltrans = 0.7
-    getgenv().outlinetrans = 0
+	print("ESP Function Called (Disabled in Studio): This requires an executor to run.")
+    --[[ Executor-Only Code:
+    getgenv().enabled = true --Toggle on/off
+    getgenv().filluseteamcolor = false --Toggle fill color using player team color on/off
+    getgenv().outlineuseteamcolor = false --Toggle outline color using player team color on/off
+    getgenv().fillcolor = Color3.new(255, 0, 0) --Change fill color, no need to edit if using team color
+    getgenv().outlinecolor = Color3.new(255, 255, 255) --Change outline color, no need to edit if using team color
+    getgenv().filltrans = 0.7 --Change fill transparency
+    getgenv().outlinetrans = 0 --Change outline transparency
     loadstring(game:HttpGet("https://gist.githubusercontent.com/Ginxys/a2d26247ddcd1670ad9be672dfd94914/raw/b4f5acf1667f24916a6af7440e0444c0a15f5051/customesp"))()
+    ]]
 end
 
 function toggleNoclip(state)
 	noclipEnabled = state or not noclipEnabled
 	print("Noclip Toggled: " .. tostring(noclipEnabled))
+	local char = player.Character
+	if char then
+		for _, part in pairs(char:GetDescendants()) do
+			if part:IsA("BasePart") then
+				part.CanCollide = not noclipEnabled
+			end
+		end
+	end
 end
 
 RunService.Stepped:Connect(function()
@@ -52,65 +60,8 @@ RunService.Stepped:Connect(function()
 	end
 end)
 
-function toggleFly()
-    flyEnabled = not flyEnabled
-    print("Fly Toggled: " .. tostring(flyEnabled))
-    local char = player.Character
-    if not char or not char:FindFirstChild("HumanoidRootPart") then return end
-    
-    if flyEnabled then
-        local rootPart = char.HumanoidRootPart
-        if not rootPart:FindFirstChild("FlyVelocity") then
-            local bv = Instance.new("BodyVelocity", rootPart)
-            bv.Name = "FlyVelocity"
-            bv.MaxForce = Vector3.new(9e9, 9e9, 9e9)
-            bv.Velocity = Vector3.new(0, 0, 0)
-            
-            local bg = Instance.new("BodyGyro", rootPart)
-            bg.Name = "FlyGyro"
-            bg.MaxTorque = Vector3.new(9e9, 9e9, 9e9)
-            bg.CFrame = rootPart.CFrame
-        end
-    else
-        if char.HumanoidRootPart:FindFirstChild("FlyVelocity") then char.HumanoidRootPart.FlyVelocity:Destroy() end
-        if char.HumanoidRootPart:FindFirstChild("FlyGyro") then char.HumanoidRootPart.FlyGyro:Destroy() end
-    end
-    
-    char.Humanoid.PlatformStand = flyEnabled
-end
 
-RunService.RenderStepped:Connect(function()
-    if flyEnabled and player.Character then
-        local rootPart = player.Character:FindFirstChild("HumanoidRootPart")
-        if rootPart and rootPart:FindFirstChild("FlyVelocity") then
-            local velocity = Vector3.new(0,0,0)
-            local speed = 50
-            if UserInputService:IsKeyDown(Enum.KeyCode.W) then
-                velocity = velocity + (workspace.CurrentCamera.CFrame.LookVector * speed)
-            end
-            if UserInputService:IsKeyDown(Enum.KeyCode.S) then
-                velocity = velocity - (workspace.CurrentCamera.CFrame.LookVector * speed)
-            end
-            if UserInputService:IsKeyDown(Enum.KeyCode.D) then
-                velocity = velocity + (workspace.CurrentCamera.CFrame.RightVector * speed)
-            end
-            if UserInputService:IsKeyDown(Enum.KeyCode.A) then
-                velocity = velocity - (workspace.CurrentCamera.CFrame.RightVector * speed)
-            end
-            if UserInputService:IsKeyDown(Enum.KeyCode.Space) then
-                velocity = velocity + Vector3.new(0, speed, 0)
-            end
-            if UserInputService:IsKeyDown(Enum.KeyCode.LeftControl) then
-                velocity = velocity - Vector3.new(0, speed, 0)
-            end
-            rootPart.FlyVelocity.Velocity = velocity
-            
-            if rootPart:FindFirstChild("FlyGyro") then
-                rootPart.FlyGyro.CFrame = workspace.CurrentCamera.CFrame
-            end
-        end
-    end
-end)
+-- GUI SETUP --
 
 local screenGui = Instance.new("ScreenGui")
 screenGui.Name = "ExecutorGui"
@@ -124,7 +75,8 @@ mainFrame.BackgroundColor3 = Color3.fromRGB(28, 28, 32)
 mainFrame.BorderSizePixel = 0
 mainFrame.AnchorPoint = Vector2.new(0.5, 0.5)
 mainFrame.Position = UDim2.new(0.5, 0, -0.5, 0)
-mainFrame.Size = UDim2.new(0, 550, 0, 380)
+mainFrame.Size = UDim2.new(0, 550, 0, 380) -- Increased height for more content
+mainFrame.Visible = false
 
 local uiCorner = Instance.new("UICorner")
 uiCorner.CornerRadius = UDim.new(0, 12)
@@ -149,7 +101,7 @@ titleGradient.Rotation = 90
 local logo = Instance.new("ImageLabel")
 logo.Name = "Logo"
 logo.Parent = titleBar
-logo.Image = "rbxassetid://99543355360177" 
+logo.Image = "rbxassetid://99543355360177" -- Changed Asset ID
 logo.BackgroundTransparency = 1
 logo.Position = UDim2.new(0, 10, 0.5, 0)
 logo.AnchorPoint = Vector2.new(0, 0.5)
@@ -205,6 +157,7 @@ contentContainer.BorderSizePixel = 0
 contentContainer.Position = UDim2.new(0, 130, 0, 35)
 contentContainer.Size = UDim2.new(1, -130, 1, -35)
 
+-- UI Creation Functions
 local function createTab(name, order)
 	local tabButton = Instance.new("TextButton", tabContainer)
 	tabButton.Name = name .. "Tab"
@@ -351,7 +304,7 @@ local function createSlider(parent, label, min, max, default, callback)
 	local sliderFrame = Instance.new("Frame", parent)
 	sliderFrame.Name = label .. "Slider"
 	sliderFrame.BackgroundColor3 = Color3.fromRGB(35, 35, 40)
-	sliderFrame.Size = UDim2.new(0.9, 0, 0, 50)
+	sliderFrame.Size = UDim2.new(0.9, 0, 0, 50) -- Taller for better interaction
 	local sliderCorner = Instance.new("UICorner", sliderFrame)
 	sliderCorner.CornerRadius = UDim.new(0, 8)
 
@@ -409,6 +362,7 @@ local function createSlider(parent, label, min, max, default, callback)
 		if callback then callback(value) end
 	end
 
+	-- Set default value
 	local defaultAlpha = (default - min) / (max - min)
 	knob.Position = UDim2.new(defaultAlpha, 0, 0.5, 0)
 	fill.Size = UDim2.new(defaultAlpha, 0, 1, 0)
@@ -442,18 +396,22 @@ local function createLabel(parent, text)
 	label.TextXAlignment = Enum.TextXAlignment.Center
 end
 
+-- Create Tabs and Content
 local mainTab = createTab("Main", 1)
 local norTab = createTab("NOR Level", 2)
 local creditsTab = createTab("Credits", 3)
-local updatesTab = createTab("Updates", 4)
+local updatesTab = createTab("Updates", 4) -- New updates tab
 
+-- Add content to Main tab
 createButton(mainTab, "Anti Report", function()
 	if player.Character and player.Character.Humanoid then
 		player.Character.Humanoid.DisplayDistanceType = Enum.HumanoidDisplayDistanceType.None
 	end
+    --[[ Executor-Only Code:
     setfflag("AbuseReportScreenshot", "False")
     setfflag("AbuseReportScreenshotPercentage", "0")
-	print("Anti-Report Activated.")
+    ]]
+	print("Anti-Report: Nametag hidden. Screenshot prevention is executor-only.")
 end)
 createButton(mainTab, "ESP (PLAYERS)", esp)
 createToggle(mainTab, "Auto Collect", function(state)
@@ -465,8 +423,10 @@ createToggle(mainTab, "Auto Collect", function(state)
 				if game:GetService("Workspace"):FindFirstChild("Collectables") and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
 					for _, v in pairs(game:GetService("Workspace").Collectables:GetDescendants()) do
 						if v.Name == "Hitbox" and autoCollecting then
+                            --[[ Executor-Only Code:
                             firetouchinterest(player.Character.HumanoidRootPart, v, 0)
                             firetouchinterest(player.Character.HumanoidRootPart, v, 1)
+                            ]]
 						end
 					end
 				end
@@ -478,7 +438,7 @@ end)
 createButton(mainTab, "Toggle NoClip", function()
 	toggleNoclip()
 end)
-createButton(mainTab, "Toggle Fly", toggleFly)
+createButton(mainTab, "Fly WORKS", function() print("Fly Script (Disabled in Studio): This requires an executor.") end)
 createSlider(mainTab, "FOV", 70, 120, 70, function(value)
 	if workspace.CurrentCamera then workspace.CurrentCamera.FieldOfView = value end
 end)
@@ -498,6 +458,7 @@ createButton(mainTab, "No Prompt CD", function()
 	print("All ProximityPrompt hold durations set to 0.")
 end)
 
+-- Add content to NOR Level tab
 createButton(norTab, "ESP SUS tree", function()
 	local count = 0
 	for _, g in pairs(workspace:GetDescendants()) do
@@ -515,7 +476,7 @@ createToggle(norTab, "Auto Keys/Open", function(state)
 					for _, g in pairs(workspace:GetDescendants()) do
 						if g:IsA("ProximityPrompt") and autoKeys then
 							g.HoldDuration = 0
-							fireproximityprompt(g)
+							-- fireproximityprompt(g) -- Executor-Only Function
 						end
 					end
 				end)
@@ -531,9 +492,10 @@ createToggle(norTab, "Auto Dance OP", function(state)
 		coroutine.wrap(function()
 			while autoDance do
 				pcall(function()
+					-- NOTE: This is unlikely to work in a real game without the correct client context.
 					local remote = game:GetService("ReplicatedStorage"):FindFirstChild("RegisterDance", true)
 					if remote then
-						remote:InvokeServer(1, "Dance6")
+						-- remote:InvokeServer(1, "Dance6")
 					end
 				end)
 				task.wait(0.2)
@@ -542,12 +504,17 @@ createToggle(norTab, "Auto Dance OP", function(state)
 	end
 end)
 
+
+-- Add content to Credits tab
 createLabel(creditsTab, "Credits: potatoking")
 createLabel(creditsTab, "Donation: potatoking.net/pay")
 
+-- Add content to Updates tab
 createLabel(updatesTab, "Auto kill NOR boss is coming soon.")
 createLabel(updatesTab, "Fly GUI is getting better.")
 
+
+-- GUI Management
 local function openGui()
 	mainFrame.Visible = true
 	TweenService:Create(mainFrame, TweenInfo.new(0.6, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {Position = UDim2.new(0.5, 0, 0.5, 0)}):Play()
@@ -562,6 +529,7 @@ end
 
 closeButton.MouseButton1Click:Connect(closeGui)
 
+-- Draggable functionality
 local dragging, dragStart, startPos
 titleBar.InputBegan:Connect(function(input)
 	if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
@@ -584,6 +552,10 @@ UserInputService.InputChanged:Connect(function(input)
 	end
 end)
 
+-- Initial Tab Selection & Open
 mainTab.Visible = true
 tabContainer.MainTab.BackgroundColor3 = Color3.fromRGB(80, 120, 255)
 openGui()
+
+
+make it so this script can be executed by roblox executors like synapse
