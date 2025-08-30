@@ -1,3 +1,4 @@
+--// SERVICES AND VARIABLES
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -6,32 +7,31 @@ local VirtualInputManager = game:GetService("VirtualInputManager")
 
 local LocalPlayer = Players.LocalPlayer
 local noclipEnabled = false
-local ownerUserId = 3500870223 -- Updated Owner ID
+local ownerUserId = 3500870223 -- Your Owner ID
 
---// Use a stable and reliable UI Library
-local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
+--// CUSTOM NOTIFICATION SYSTEM
+local NotificationHolder = loadstring(game:HttpGet("https://raw.githubusercontent.com/BocusLuke/UI/main/STX/Module.Lua"))()
+local Notification = loadstring(game:HttpGet("https://raw.githubusercontent.com/BocusLuke/UI/main/STX/Client.Lua"))()
 
---// UNIFIED NOTIFICATION SYSTEM
-local function sendNotification(title, content, duration)
-    Rayfield:Notify({
-        Title = title,
-        Content = content,
-        Duration = duration or 5,
-        Image = "rbxassetid://13829412863",
-    })
+-- A centralized function for sending your preferred notifications
+local function sendAppNotification(title, description, color, duration)
+    Notification:Notify(
+        {Title = title, Description = description},
+        {OutlineColor = color or Color3.fromRGB(255, 255, 255), Time = duration or 5, Type = "default"}
+    )
 end
 
 --// INITIAL LOADING NOTIFICATIONS & SOUND
-sendNotification("Potato 64", "Loading Script...", 5)
+sendAppNotification("Potato 64", "Loading Script...", Color3.fromRGB(255, 255, 0), 5)
 local sound = Instance.new("Sound")
 sound.SoundId = "rbxassetid://3320590485"
 sound.Volume = 5
 sound:Play()
 sound.Parent = LocalPlayer
 wait(5)
-sendNotification("Potato 64", "Script Loaded! Credits to potatoking.net", 10)
+sendAppNotification("Potato 64", "Script Loaded! Credits to potatoking.net", Color3.fromRGB(0, 255, 0), 10)
 if LocalPlayer.UserId == ownerUserId then
-    sendNotification("Welcome Owner", "Welcome back, " .. LocalPlayer.Name, 5)
+    sendAppNotification("Welcome Owner", "Welcome back, " .. LocalPlayer.Name, Color3.fromRGB(0, 170, 255), 5)
 end
 
 --// ORIGINAL ESP FUNCTIONS
@@ -54,7 +54,7 @@ end
 --// Noclip Function
 local function toggleNoclip()
     noclipEnabled = not noclipEnabled
-    sendNotification("Noclip", noclipEnabled and "Enabled" or "Disabled", 4)
+    sendAppNotification("Noclip", noclipEnabled and "Enabled" or "Disabled", Color3.fromRGB(255, 255, 0), 4)
 end
 
 RunService.Stepped:Connect(function()
@@ -67,45 +67,48 @@ RunService.Stepped:Connect(function()
     end
 end)
 
---// NEW GUI SETUP
-local window = Rayfield:CreateWindow({
-    Name = "Potato 64",
-    LoadingTitle = "Loading Potato 64",
-    LoadingSubtitle = "by potatoking.net",
-    ConfigurationSaving = {
-        Enabled = true,
-        FolderName = "Potato64",
-        FileName = "Config"
-    }
-})
+--// YOUR UI LIBRARY
+local success, library = pcall(function()
+    return loadstring(game:HttpGet("https://raw.githubusercontent.com/liebertsx/Tora-Library/main/src/librarynew", true))()
+end)
 
---// TABS
-local mainTab = window:CreateTab("Main")
-local norLevelTab = window:CreateTab("NOR Level")
-local visualsTab = window:CreateTab("Visuals")
-local movementTab = window:CreateTab("Movement")
-local creditsTab = window:CreateTab("Credits")
+if not success or not library then
+    sendAppNotification("Fatal Error", "Failed to load the Tora UI Library. Script cannot continue.", Color3.fromRGB(255, 0, 0), 15)
+    return
+end
 
---// MAIN TAB
-mainTab:CreateSection("Core Functions")
+--// GUI SETUP - TWO WINDOWS AS PER ORIGINAL SCRIPT
+local window = library:CreateWindow("Potato 64 - Main")
+local window2 = library:CreateWindow("Potato 64 - NOR Level")
 
-mainTab:CreateButton({
-    Name = "Anti-Report",
-    Callback = function()
+--// -- MAIN WINDOW --
+window:AddLabel({ text = "Main Functions" })
+
+window:AddButton({
+    text = "Anti-Report",
+    callback = function()
         pcall(function()
             LocalPlayer.Character.Humanoid.DisplayDistanceType = Enum.HumanoidDisplayDistanceType.None
             setfflag("AbuseReportScreenshot", "False")
             setfflag("AbuseReportScreenshotPercentage", "0")
-            sendNotification("Anti-Report", "Activated successfully!", 5)
+            sendAppNotification("Anti-Report", "Activated successfully!", Color3.fromRGB(0, 255, 0), 5)
         end)
-    end,
+    end
 })
 
-mainTab:CreateToggle({
-    Name = "Auto-Collect Items (OP)",
-    CurrentValue = false,
-    Flag = "AutoCollect",
-    Callback = function(value)
+window:AddToggle({
+    text = "Player ESP",
+    flag = "PlayerESP",
+    callback = function(value)
+        if value then esp() else unesp() end
+        sendAppNotification("Player ESP", value and "Enabled" or "Disabled", Color3.fromRGB(255, 255, 0), 4)
+    end
+})
+
+window:AddToggle({
+    text = "Auto-Collect Items (OP)",
+    flag = "AutoCollect",
+    callback = function(value)
         _G.autoCollect = value
         task.spawn(function()
             while _G.autoCollect do
@@ -120,14 +123,13 @@ mainTab:CreateToggle({
                 task.wait(1)
             end
         end)
-    end,
+    end
 })
 
-mainTab:CreateToggle({
-    Name = "Auto-Dance (OP)",
-    CurrentValue = false,
-    Flag = "AutoDance",
-    Callback = function(value)
+window:AddToggle({
+    text = "Auto-Dance (OP)",
+    flag = "AutoDance",
+    callback = function(value)
         _G.autoDance = value
         task.spawn(function()
             if _G.autoDance then
@@ -140,32 +142,57 @@ mainTab:CreateToggle({
                 end
             end
         end)
-    end,
+    end
 })
 
-mainTab:CreateButton({
-    Name = "Remove Prompt Cooldown",
-    Callback = function()
-        game:GetService("ProximityPromptService").PromptButtonHoldBegan:Connect(function(prompt)
-            fireproximityprompt(prompt)
+window:AddLabel({ text = "Movement" })
+
+window:AddButton({ text = "Toggle Noclip", callback = toggleNoclip })
+window:AddButton({ text = "Fly Script (Zynox)", callback = function() loadstring(game:HttpGet("https://raw.githubusercontent.com/Zynox-Dev/Zynox-Fly/refs/heads/main/Fly.lua"))() end })
+window:AddButton({ text = "Fly/Speed GUI (Alternate)", callback = function() loadstring(game:HttpGet("https://pastebin.com/raw/U0wWyYc0"))() end })
+
+window:AddLabel({ text = "Visuals" })
+
+window:AddButton({
+    text = "Loop Full Bright",
+    callback = function()
+        if _G.brightLoop then _G.brightLoop:Disconnect(); _G.brightLoop = nil end
+        local Lighting = game:GetService("Lighting")
+        _G.brightLoop = RunService.RenderStepped:Connect(function()
+            Lighting.Brightness = 2
+            Lighting.ClockTime = 14
+            Lighting.FogEnd = 100000
+            Lighting.GlobalShadows = false
+            Lighting.OutdoorAmbient = Color3.fromRGB(128, 128, 128)
         end)
-        for _, v in ipairs(Workspace:GetDescendants()) do
-            if v:IsA("ProximityPrompt") then
-                v.HoldDuration = 0
-            end
-        end
-        sendNotification("No Prompt CD", "All prompt cooldowns removed.", 5)
-    end,
+        sendAppNotification("Visuals", "Full Bright Loop enabled.", Color3.fromRGB(0, 255, 0), 4)
+    end
 })
 
---// NOR LEVEL TAB
-norLevelTab:CreateSection("NOR Level Specific")
+window:AddSlider({ text = "FOV", min = 70, max = 120, callback = function(v) Workspace.Camera.FieldOfView = v end })
 
-norLevelTab:CreateToggle({
-    Name = "Auto Kill Boss",
-    CurrentValue = false,
-    Flag = "AutoKillBoss",
-    Callback = function(value)
+window:AddLabel({ text = "Credits: potatoking.net" })
+
+window:AddButton({
+    text = "Donate (Copy Link)",
+    callback = function()
+        if setclipboard then
+            setclipboard("potatoking.net/pay")
+            sendAppNotification("Donate", "Donation link copied to clipboard!", Color3.fromRGB(0, 255, 0), 5)
+        else
+            sendAppNotification("Error", "Could not copy link to clipboard.", Color3.fromRGB(255, 0, 0), 5)
+        end
+    end
+})
+window:AddImage({ image = "https://static.wikia.nocookie.net/roblox-piggy-wikia/images/6/60/PIG_64.jpg/revision/latest", height = 150 })
+
+--// -- NOR LEVEL WINDOW --
+window2:AddLabel({ text = "NOR Level Specific Functions" })
+
+window2:AddToggle({
+    text = "Auto Kill Boss",
+    flag = "AutoKillBoss",
+    callback = function(value)
         _G.autoKill = value
         task.spawn(function()
             while _G.autoKill do
@@ -177,14 +204,13 @@ norLevelTab:CreateToggle({
                 task.wait(0.5)
             end
         end)
-    end,
+    end
 })
 
-norLevelTab:CreateToggle({
-    Name = "Auto Open Doors/Keys",
-    CurrentValue = false,
-    Flag = "AutoInteractNor",
-    Callback = function(value)
+window2:AddToggle({
+    text = "Auto Open Doors/Keys",
+    flag = "AutoInteractNor",
+    callback = function(value)
         _G.AutoE = value
         if _G.AutoE then
             RunService:BindToRenderStep("AutoProximityPrompt", Enum.RenderPriority.Character.Value, function()
@@ -204,18 +230,17 @@ norLevelTab:CreateToggle({
                 RunService:UnbindFromRenderStep("AutoProximityPrompt")
             end
         end
-    end,
+    end
 })
 
-norLevelTab:CreateButton({
-    Name = "ESP Suspicious Tree",
-    Callback = function()
+window2:AddButton({
+    text = "ESP Suspicious Tree",
+    callback = function()
         for _, g in pairs(Workspace:GetDescendants()) do
             if g.Name == "SuspiciousTree" then
-                if not g:FindFirstChild("RayfieldESP") then
-                    local highlight = Instance.new("Highlight", g)
+                pcall(function()
+                    if g:FindFirstChild("BillboardGui") then g:FindFirstChild("BillboardGui"):Destroy() end
                     local UI = Instance.new("BillboardGui", g)
-                    UI.Name = "RayfieldESP"
                     UI.Size = UDim2.new(0, 200, 0, 50)
                     UI.AlwaysOnTop = true
                     local Label = Instance.new("TextLabel", UI)
@@ -226,132 +251,43 @@ norLevelTab:CreateButton({
                     Label.TextColor3 = Color3.new(1, 0, 0)
                     Label.Font = Enum.Font.Oswald
                     Label.TextStrokeTransparency = 0
-                end
+                end)
             end
         end
-        sendNotification("ESP", "Highlighted all suspicious trees.", 5)
-    end,
+        sendAppNotification("ESP", "Highlighted all suspicious trees.", Color3.fromRGB(0, 255, 0), 5)
+    end
 })
 
-norLevelTab:CreateButton({
-    Name = "Delete Nor Damage (May not work)",
-    Callback = function()
+window2:AddButton({
+    text = "Delete Nor Damage (May not work)",
+    callback = function()
         pcall(function()
             Workspace.Maps.WarehouseChase.MapSetup.PatrolAssets.PatrolNPCs.ChaseNor.HumanoidRootPart.CanTouch = false
-            sendNotification("NOR Level", "Attempted to disable damage.", 4)
+            sendAppNotification("NOR Level", "Attempted to disable damage.", Color3.fromRGB(255, 255, 0), 4)
         end)
-    end,
+    end
 })
 
---// VISUALS TAB
-visualsTab:CreateSection("Visual Enhancements")
-
-visualsTab:CreateToggle({
-    Name = "Player ESP",
-    CurrentValue = false,
-    Flag = "PlayerESP",
-    Callback = function(value)
-        if value then esp() else unesp() end
-        sendNotification("Player ESP", value and "Enabled" or "Disabled", 4)
-    end,
-})
-
-visualsTab:CreateButton({
-    Name = "Loop Full Bright",
-    Callback = function()
-        if _G.brightLoop then
-            _G.brightLoop:Disconnect()
-            _G.brightLoop = nil
-        end
-        local Lighting = game:GetService("Lighting")
-        _G.brightLoop = RunService.RenderStepped:Connect(function()
-            Lighting.Brightness = 2
-            Lighting.ClockTime = 14
-            Lighting.FogEnd = 100000
-            Lighting.GlobalShadows = false
-            Lighting.OutdoorAmbient = Color3.fromRGB(128, 128, 128)
-        end)
-        sendNotification("Visuals", "Full Bright Loop enabled.", 4)
-    end,
-})
-
-visualsTab:CreateSlider({
-    Name = "FOV",
-    Range = {70, 120},
-    Increment = 1,
-    Suffix = " FOV",
-    CurrentValue = 70,
-    Callback = function(value)
-        Workspace.Camera.FieldOfView = value
-    end,
-})
-
---// MOVEMENT TAB
-movementTab:CreateSection("Character Movement")
-
-movementTab:CreateButton({
-    Name = "Toggle Noclip",
-    Callback = function()
-        LocalPlayer.CameraMode = Enum.CameraMode.Classic
-        toggleNoclip()
-    end,
-})
-
-movementTab:CreateButton({
-    Name = "Fly Script (Zynox)",
-    Callback = function()
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/Zynox-Dev/Zynox-Fly/refs/heads/main/Fly.lua"))()
-    end,
-})
-
-movementTab:CreateButton({
-    Name = "Alternate Fly/Speed GUI",
-    Callback = function()
-        loadstring(game:HttpGet("https://pastebin.com/raw/U0wWyYc0"))()
-    end,
-})
-
---// CREDITS TAB
-creditsTab:CreateSection()
-creditsTab:CreateImage({
-    Image = "https://static.wikia.nocookie.net/roblox-piggy-wikia/images/6/60/PIG_64.jpg/revision/latest",
-    ImageHeight = 200
-})
-creditsTab:CreateLabel("Credits: potatoking.net")
-
-creditsTab:CreateButton({
-    Name = "Donate",
-    Callback = function()
-        if setclipboard then
-            setclipboard("potatoking.net/pay")
-            sendNotification("Donate", "Donation link copied to clipboard!", 5)
-        else
-            sendNotification("Error", "Could not copy link to clipboard.", 5)
-        end
-    end,
-})
+--// INITIALIZE THE UI
+library:Init()
 
 --// OWNER COMMANDS
 local function handleCommand(command)
     if LocalPlayer.UserId ~= ownerUserId then return end
-
     local args = {}
     for arg in command:gmatch("%S+") do table.insert(args, arg) end
-
     local cmd = string.lower(args[1])
-    local targetName = args[2]
-
-    if cmd == "!kick" and targetName then
-        local targetPlayer = Players:FindFirstChild(targetName)
+    if cmd == "!kick" and args[2] then
+        local targetPlayer = Players:FindFirstChild(args[2])
         if targetPlayer then
             targetPlayer:Kick("Kicked by Owner")
-            sendNotification("Admin", "Kicked " .. targetPlayer.Name, 5)
+            sendAppNotification("Admin", "Kicked " .. targetPlayer.Name, Color3.fromRGB(0, 255, 0), 5)
         else
-            sendNotification("Error", "Player not found: " .. targetName, 5)
+            sendAppNotification("Error", "Player not found: " .. args[2], Color3.fromRGB(255, 0, 0), 5)
         end
     elseif cmd == "!notify" then
         local message = table.concat(args, " ", 2)
-        sendNotification("Owner Message", message, 10)
+        sendAppNotification("Owner Message", message, Color3.fromRGB(0, 170, 255), 10)
     elseif cmd == "!say" then
         local message = table.concat(args, " ", 2)
         ReplicatedStorage.DefaultChatSystemChatEvents.SayMessageRequest:FireServer(message, "All")
