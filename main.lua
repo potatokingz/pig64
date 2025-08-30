@@ -1,25 +1,40 @@
+-- Services
 local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
 local RunService = game:GetService("RunService")
 
+-- Main Script Variables
 local player = game.Players.LocalPlayer
 local noclipEnabled = false
-local ownerUserId = 5450713868
+local ownerUserId = 5450713868 -- You can change this to your own UserId to see the welcome message
 
 print("potato 64 Script: Loading...")
-task.wait(1)
+task.wait(1) -- Simulate a small loading delay
 print("potato 64 Script: Successfully loaded in Roblox Studio!")
 if player.UserId == ownerUserId then
 	print("Welcome Owner: " .. player.Name)
+	-- Notification:Notify({Title = "Welcome Owner", Description = "Welcome " .. player.Name}, {OutlineColor = Color3.fromRGB(255, 255, 0),Time = 5, Type = "default"})
 end
 
+-- State variables for toggles
 local autoCollecting = false
 local autoKeys = false
 local autoDance = false
 local brightLoop = nil
 
+-- Core Cheat Functions
 function esp()
 	print("ESP Function Called (Disabled in Studio): This requires an executor to run.")
+    --[[ Executor-Only Code:
+    getgenv().enabled = true --Toggle on/off
+    getgenv().filluseteamcolor = false --Toggle fill color using player team color on/off
+    getgenv().outlineuseteamcolor = false --Toggle outline color using player team color on/off
+    getgenv().fillcolor = Color3.new(255, 0, 0) --Change fill color, no need to edit if using team color
+    getgenv().outlinecolor = Color3.new(255, 255, 255) --Change outline color, no need to edit if using team color
+    getgenv().filltrans = 0.7 --Change fill transparency
+    getgenv().outlinetrans = 0 --Change outline transparency
+    loadstring(game:HttpGet("https://gist.githubusercontent.com/Ginxys/a2d26247ddcd1670ad9be672dfd94914/raw/b4f5acf1667f24916a6af7440e0444c0a15f5051/customesp"))()
+    ]]
 end
 
 function toggleNoclip(state)
@@ -45,6 +60,9 @@ RunService.Stepped:Connect(function()
 	end
 end)
 
+
+-- GUI SETUP --
+
 local screenGui = Instance.new("ScreenGui")
 screenGui.Name = "ExecutorGui"
 screenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
@@ -57,7 +75,7 @@ mainFrame.BackgroundColor3 = Color3.fromRGB(28, 28, 32)
 mainFrame.BorderSizePixel = 0
 mainFrame.AnchorPoint = Vector2.new(0.5, 0.5)
 mainFrame.Position = UDim2.new(0.5, 0, -0.5, 0)
-mainFrame.Size = UDim2.new(0, 550, 0, 380)
+mainFrame.Size = UDim2.new(0, 550, 0, 380) -- Increased height for more content
 mainFrame.Visible = false
 
 local uiCorner = Instance.new("UICorner")
@@ -83,7 +101,7 @@ titleGradient.Rotation = 90
 local logo = Instance.new("ImageLabel")
 logo.Name = "Logo"
 logo.Parent = titleBar
-logo.Image = "rbxassetid://99543355360177"
+logo.Image = "rbxassetid://99543355360177" -- Changed Asset ID
 logo.BackgroundTransparency = 1
 logo.Position = UDim2.new(0, 10, 0.5, 0)
 logo.AnchorPoint = Vector2.new(0, 0.5)
@@ -139,6 +157,7 @@ contentContainer.BorderSizePixel = 0
 contentContainer.Position = UDim2.new(0, 130, 0, 35)
 contentContainer.Size = UDim2.new(1, -130, 1, -35)
 
+-- UI Creation Functions
 local function createTab(name, order)
 	local tabButton = Instance.new("TextButton", tabContainer)
 	tabButton.Name = name .. "Tab"
@@ -285,7 +304,7 @@ local function createSlider(parent, label, min, max, default, callback)
 	local sliderFrame = Instance.new("Frame", parent)
 	sliderFrame.Name = label .. "Slider"
 	sliderFrame.BackgroundColor3 = Color3.fromRGB(35, 35, 40)
-	sliderFrame.Size = UDim2.new(0.9, 0, 0, 50)
+	sliderFrame.Size = UDim2.new(0.9, 0, 0, 50) -- Taller for better interaction
 	local sliderCorner = Instance.new("UICorner", sliderFrame)
 	sliderCorner.CornerRadius = UDim.new(0, 8)
 
@@ -343,6 +362,7 @@ local function createSlider(parent, label, min, max, default, callback)
 		if callback then callback(value) end
 	end
 
+	-- Set default value
 	local defaultAlpha = (default - min) / (max - min)
 	knob.Position = UDim2.new(defaultAlpha, 0, 0.5, 0)
 	fill.Size = UDim2.new(defaultAlpha, 0, 1, 0)
@@ -376,15 +396,21 @@ local function createLabel(parent, text)
 	label.TextXAlignment = Enum.TextXAlignment.Center
 end
 
+-- Create Tabs and Content
 local mainTab = createTab("Main", 1)
 local norTab = createTab("NOR Level", 2)
 local creditsTab = createTab("Credits", 3)
-local updatesTab = createTab("Updates", 4)
+local updatesTab = createTab("Updates", 4) -- New updates tab
 
+-- Add content to Main tab
 createButton(mainTab, "Anti Report", function()
 	if player.Character and player.Character.Humanoid then
 		player.Character.Humanoid.DisplayDistanceType = Enum.HumanoidDisplayDistanceType.None
 	end
+    --[[ Executor-Only Code:
+    setfflag("AbuseReportScreenshot", "False")
+    setfflag("AbuseReportScreenshotPercentage", "0")
+    ]]
 	print("Anti-Report: Nametag hidden. Screenshot prevention is executor-only.")
 end)
 createButton(mainTab, "ESP (PLAYERS)", esp)
@@ -397,6 +423,10 @@ createToggle(mainTab, "Auto Collect", function(state)
 				if game:GetService("Workspace"):FindFirstChild("Collectables") and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
 					for _, v in pairs(game:GetService("Workspace").Collectables:GetDescendants()) do
 						if v.Name == "Hitbox" and autoCollecting then
+                            --[[ Executor-Only Code:
+                            firetouchinterest(player.Character.HumanoidRootPart, v, 0)
+                            firetouchinterest(player.Character.HumanoidRootPart, v, 1)
+                            ]]
 						end
 					end
 				end
@@ -428,6 +458,7 @@ createButton(mainTab, "No Prompt CD", function()
 	print("All ProximityPrompt hold durations set to 0.")
 end)
 
+-- Add content to NOR Level tab
 createButton(norTab, "ESP SUS tree", function()
 	local count = 0
 	for _, g in pairs(workspace:GetDescendants()) do
@@ -445,6 +476,7 @@ createToggle(norTab, "Auto Keys/Open", function(state)
 					for _, g in pairs(workspace:GetDescendants()) do
 						if g:IsA("ProximityPrompt") and autoKeys then
 							g.HoldDuration = 0
+							-- fireproximityprompt(g) -- Executor-Only Function
 						end
 					end
 				end)
@@ -460,8 +492,10 @@ createToggle(norTab, "Auto Dance OP", function(state)
 		coroutine.wrap(function()
 			while autoDance do
 				pcall(function()
+					-- NOTE: This is unlikely to work in a real game without the correct client context.
 					local remote = game:GetService("ReplicatedStorage"):FindFirstChild("RegisterDance", true)
 					if remote then
+						-- remote:InvokeServer(1, "Dance6")
 					end
 				end)
 				task.wait(0.2)
@@ -470,12 +504,17 @@ createToggle(norTab, "Auto Dance OP", function(state)
 	end
 end)
 
+
+-- Add content to Credits tab
 createLabel(creditsTab, "Credits: potatoking")
 createLabel(creditsTab, "Donation: potatoking.net/pay")
 
+-- Add content to Updates tab
 createLabel(updatesTab, "Auto kill NOR boss is coming soon.")
 createLabel(updatesTab, "Fly GUI is getting better.")
 
+
+-- GUI Management
 local function openGui()
 	mainFrame.Visible = true
 	TweenService:Create(mainFrame, TweenInfo.new(0.6, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {Position = UDim2.new(0.5, 0, 0.5, 0)}):Play()
@@ -490,6 +529,7 @@ end
 
 closeButton.MouseButton1Click:Connect(closeGui)
 
+-- Draggable functionality
 local dragging, dragStart, startPos
 titleBar.InputBegan:Connect(function(input)
 	if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
@@ -512,6 +552,7 @@ UserInputService.InputChanged:Connect(function(input)
 	end
 end)
 
+-- Initial Tab Selection & Open
 mainTab.Visible = true
 tabContainer.MainTab.BackgroundColor3 = Color3.fromRGB(80, 120, 255)
 openGui()
