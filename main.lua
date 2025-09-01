@@ -1,6 +1,14 @@
 local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/Vcsk/UI-Library/main/Source/MyUILib(Unamed).lua"))();
 local Window = Library:Create("🐷 Piggy Season 8 👑")
 
+local function ShowNotification(title, text, duration)
+    game:GetService("StarterGui"):SetCore("SendNotification", {
+        Title = title,
+        Text = text,
+        Duration = duration or 5
+    })
+end
+
 local ToggleGui = Instance.new("ScreenGui")
 local Toggle = Instance.new("TextButton")
 
@@ -29,26 +37,40 @@ local MainTab = Window:Tab("🏠 Main", "rbxassetid://10888331510")
 local PlayerTab = Window:Tab("🏃‍♂️ Players", "rbxassetid://12296135476")
 local VisualTab = Window:Tab("👁️ Visuals", "rbxassetid://12308581351")
 local ExtraTab = Window:Tab("⚙️ Extra", "rbxassetid://7734042071")
-local EventTab = Window:Tab("🎉 Events", "rbxassetid://121289661702681")
+local EventTab = Window:Tab("🎉 Events", "rbxassetid://12308581351")
 local InfoTab = Window:Tab("ℹ️ Info", "rbxassetid://9405926389")
 
 MainTab:Section("🔥 God Mode")
-MainTab:InfoLabel("Prevents bots from killing you.")
+MainTab:InfoLabel("Prevents bots from killing you. ( BETA )")
+
 MainTab:Toggle("Enable God Mode", function(state)
     _G.GodMode = state
 end)
 
 spawn(function()
-    while wait() do
+    while wait(0.1) do
         pcall(function()
             local character = game.Players.LocalPlayer.Character
             if character then
-                local parts = character:GetDescendants()
-                for i, part in ipairs(parts) do
-                    if part:IsA("BasePart") and part.Name ~= "HumanoidRootPart" then
-                        part.CanTouch = not _G.GodMode
-                    end
-                end
+                local isEnabled = _G.GodMode
+                local canTouchValue = not isEnabled
+
+                character.Head.CanTouch = canTouchValue
+                character.UpperTorso.CanTouch = canTouchValue
+                character.LowerTorso.CanTouch = canTouchValue
+                character.LeftFoot.CanTouch = canTouchValue
+                character.RightFoot.CanTouch = canTouchValue
+                character.LeftHand.CanTouch = canTouchValue
+                character.RightHand.CanTouch = canTouchValue
+                character.LeftLowerArm.CanTouch = canTouchValue
+                character.RightLowerArm.CanTouch = canTouchValue
+                character.LeftUpperArm.CanTouch = canTouchValue
+                character.RightUpperArm.CanTouch = canTouchValue
+                character.LeftLowerLeg.CanTouch = canTouchValue
+                character.RightLowerLeg.CanTouch = canTouchValue
+                character.LeftUpperLeg.CanTouch = canTouchValue
+                character.RightUpperLeg.CanTouch = canTouchValue
+                
                 character.HumanoidRootPart.CanTouch = true
             end
         end)
@@ -188,56 +210,35 @@ MainTab:Button("✈️ Item GUI & Fly (Book 2)", function()
     loadstring(game:HttpGet("https://encurtador.com.br/fiyFJ"))();
 end)
 
-MainTab:Section("🌟 Latest Features")
-MainTab:Button("🔓 Unlock All Skins/Traps (Client)", function()
-    pcall(function()
-        local shopData = game:GetService("ReplicatedStorage").GameData.ShopData
-        for i,v in pairs(shopData.Skins:GetChildren()) do
-            v.IsOwned.Value = true
-        end
-        for i,v in pairs(shopData.Traps:GetChildren()) do
-            v.IsOwned.Value = true
-        end
-    end)
-    Library:Notify("Skins & Traps Unlocked (Visually)!")
-end)
-
-MainTab:Toggle("💨 Auto-Use Vents", function(state)
-    _G.AutoVent = state
-    spawn(function()
-        while _G.AutoVent do
-            wait(0.5)
-            pcall(function()
-                for _, vent in pairs(workspace:GetDescendants()) do
-                    if vent.Name == "Vent" and vent:FindFirstChild("ClickDetector") then
-                        local playerPos = game.Players.LocalPlayer.Character.HumanoidRootPart.Position
-                        if (vent.Position - playerPos).Magnitude < 10 then
-                            fireclickdetector(vent.ClickDetector)
-                        end
-                    end
-                end
-            end)
-        end
-    end)
-end)
-
 PlayerTab:TextBox("📲 TP to Player", function(name)
-    local plr = nil
-    for _, player in ipairs(game.Players:GetPlayers()) do
-        if string.sub(player.DisplayName:lower(), 1, #name) == name:lower() or
-           string.sub(player.Name:lower(), 1, #name) == name:lower() then
-            plr = player
-            break 
-        end
-    end
+    pcall(function()
+        if name == "" then return end
+        local localPlayer = game:GetService("Players").LocalPlayer
+        local targetPlayer = nil
+        local inputName = name:lower()
 
-    if plr and plr.Character and plr.Character:FindFirstChild("HumanoidRootPart") then
-        local rootpart = game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
-        local plrootpart = plr.Character:FindFirstChild("HumanoidRootPart")
-        if rootpart then
-            rootpart.CFrame = plrootpart.CFrame * CFrame.new(0, 0, -5)
+        for _, player in ipairs(game:GetService("Players"):GetPlayers()) do
+            if player ~= localPlayer then
+                if player.Name:lower():find(inputName, 1, true) or player.DisplayName:lower():find(inputName, 1, true) then
+                    targetPlayer = player
+                    break
+                end
+            end
         end
-    end
+
+        if targetPlayer then
+            local localRoot = localPlayer.Character and localPlayer.Character:FindFirstChild("HumanoidRootPart")
+            local targetRoot = targetPlayer.Character and targetPlayer.Character:FindFirstChild("HumanoidRootPart")
+            if localRoot and targetRoot then
+                localRoot.CFrame = targetRoot.CFrame
+                ShowNotification("Teleport", "Teleported to " .. targetPlayer.Name)
+            else
+                ShowNotification("Error", "Character not found.")
+            end
+        else
+            ShowNotification("Error", "Player not found.")
+        end
+    end)
 end)
 
 PlayerTab:TextBox("⚡ WalkSpeed", function(value)
@@ -267,27 +268,39 @@ PlayerTab:Toggle("♾️ Infinite Jump", function(s)
     end)
 end)
 
+local noclipOn = false
+local noclipConnection = nil
 PlayerTab:Toggle("👻 Noclip", function(state)
-    _G.Noclip = state
-    spawn(function()
-        while _G.Noclip do
+    noclipOn = state
+    if noclipOn and not noclipConnection then
+        noclipConnection = game:GetService("RunService").Stepped:Connect(function()
             pcall(function()
-                for _, part in pairs(game.Players.LocalPlayer.Character:GetChildren()) do
+                local char = game.Players.LocalPlayer.Character
+                local humanoid = char and char:FindFirstChildOfClass("Humanoid")
+                if not humanoid then return end
+                humanoid:ChangeState(Enum.HumanoidStateType.RunningNoPhysics)
+                for _, part in pairs(char:GetDescendants()) do
                     if part:IsA("BasePart") then
                         part.CanCollide = false
                     end
                 end
             end)
-            game:GetService("RunService").Stepped:Wait()
-        end
+        end)
+    elseif not noclipOn and noclipConnection then
+        noclipConnection:Disconnect()
+        noclipConnection = nil
         pcall(function()
-             for _, part in pairs(game.Players.LocalPlayer.Character:GetDescendants()) do
+            local char = game.Players.LocalPlayer.Character
+            local humanoid = char and char:FindFirstChildOfClass("Humanoid")
+            if not humanoid then return end
+            humanoid:ChangeState(Enum.HumanoidStateType.Running)
+            for _, part in pairs(char:GetDescendants()) do
                 if part:IsA("BasePart") then
                     part.CanCollide = true
                 end
             end
         end)
-    end)
+    end
 end)
 
 PlayerTab:Button("🔄 Rejoin", function()
@@ -403,7 +416,7 @@ ExtraTab:Button("🚀 FPS Booster",function()
             v.FogEnd = 9e9
         end
     end
-    Library:Notify("FPS Boosted!")
+    ShowNotification("Success", "FPS Boosted!")
 end)
 
 ExtraTab:Button("📊 FPS Counter",function ()
@@ -456,21 +469,13 @@ ExtraTab:TextBox("🔧 FPS Cap", function(v)
     local cap = tonumber(v)
     if cap and cap > 0 then
         setfpscap(cap)
-        Library:Notify("FPS Cap set to: " .. cap)
+        ShowNotification("Success", "FPS Cap set to: " .. cap)
     end
 end)
 
 ExtraTab:InfoLabel("Other Scripts")
-ExtraTab:Button("🐷 Control Piggy (NPC)",function () loadstring(game:HttpGet("https://pastefy.app/TQQLPh3J/raw"))() end)
 ExtraTab:Button("👁️ Invisible",function () loadstring(game:HttpGet('https://pastebin.com/raw/3Rnd9rHf'))() end)
 ExtraTab:Button("🏆 Secret Badge",function () loadstring(game:HttpGet(('https://pastefy.app/iWChQoQo/raw'),true))() end)
-ExtraTab:Button("❓ ??? (Badge)",function () loadstring(game:HttpGet("https://raw.githubusercontent.com/ToraIsMe2/ToraIsMe2/main/0piggy2", true))() end)
-
-EventTab:Section("🎉 New Events")
-EventTab:Button("🎯 Complete Latest Event", function()
-    Library:Notify("This feature requires manual updates for each new event.")
-    print("Autocomplete for the latest event would be triggered here.")
-end)
 
 EventTab:InfoLabel("🕰️ The Hunt")
 EventTab:Button("⏳ Time (Post-Hunt)",function () loadstring(game:HttpGet(('https://raw.githubusercontent.com/BaconBossScript/Piggy/main/Piggy'),true))() end)
@@ -485,8 +490,7 @@ EventTab:Button("😱 Final Chase", function () game.Players.LocalPlayer.Charact
 InfoTab:Button("👑 Script | Made by PotatoKing",function () setclipboard('PotatoKing') end)
 InfoTab:Button("🌐 Website",function () setclipboard('potatoking.net') end)
 InfoTab:Button("💸 Donation",function () setclipboard('potatoking.net/pay') end)
- 
-local NotifyLib = loadstring(game:HttpGet("https://raw.githubusercontent.com/vKhonshu/intro/main/ui"))()
-NotifyLib.prompt('Note', 'Use "Control Piggy" in ghost mode for best results.', 7)
-NotifyLib.prompt('Note', 'Turn off "Invisible" to grab items.', 7)
-NotifyLib.prompt('Made by', 'PotatoKing', 10)
+
+ShowNotification("Dontaion", 'Please Donate Through Our Info Tab!', 7)
+ShowNotification("Important", 'Script Updating Daily!', 7)
+ShowNotification("Made by", "PotatoKing", 10)
